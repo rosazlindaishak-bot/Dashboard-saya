@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My TVET Class Dashboard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: #f0f4f8;
+    color: #1f2328;
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-icon {
+    background: #3b82d4;
+    border-radius: 10px;
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .header-title { font-size: 17px; font-weight: 700; color: #1f2328; line-height: 1.3; }
+  .header-sub   { font-size: 12px; color: #57606a; margin-top: 2px; }
+  .header-right {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .header-date {
+    display: flex; align-items: center; gap: 6px;
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 13px; color: #57606a;
+    flex-shrink: 0;
+  }
+
+  /* ── TOGGLE BUTTON ── */
+  .btn-infografik {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #3b82d4; color: #fff;
+    border: none; border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    flex-shrink: 0;
+  }
+  .btn-infografik:hover  { background: #2d6db5; }
+  .btn-infografik:active { transform: scale(.97); }
+  .btn-infografik svg    { flex-shrink: 0; }
+
+  /* ── VIEWS ── */
+  #view-dashboard  { display: block; }
+  #view-infografik { display: none;  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 18px 0;
+  }
+  .section-label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: #57606a; margin-bottom: 12px;
+  }
+
+  /* ── CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 680px)  { .cards-grid { grid-template-columns: 1fr; } }
+  @media (min-width: 681px) and (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; }
+  .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .card-title-group { display:flex; align-items:center; gap:8px; }
+  .card-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .icon-blue   { background:#eff6ff; color:#3b82d4; }
+  .icon-purple { background:#f3f0ff; color:#7c5cd8; }
+  .icon-green  { background:#f0fdf4; color:#16a34a; }
+  .card-title  { font-size:13px; font-weight:600; color:#57606a; }
+
+  .stat-big  { font-size:36px; font-weight:800; line-height:1; margin-bottom:4px; }
+  .stat-lbl  { font-size:12px; color:#57606a; margin-bottom:14px; }
+  .stat-row  { display:flex; justify-content:space-between; font-size:13px; color:#57606a; margin-bottom:8px; }
+  .stat-row span:last-child { font-weight:600; color:#1f2328; }
+  .prog-wrap { background:#f0f4f8; border-radius:99px; height:7px; overflow:hidden; margin-bottom:10px; }
+  .prog-bar  { height:100%; border-radius:99px; }
+  .bar-blue  { background:#3b82d4; }
+  .bar-red   { background:#f87171; }
+
+  .badge { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:3px 8px; border-radius:99px; }
+  .badge-red  { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+  .badge-blue { background:#eff6ff; color:#3b82d4; border:1px solid #bfdbfe; }
+
+  .task-item { display:flex; align-items:flex-start; gap:8px; padding:8px 0; border-bottom:1px solid #f0f4f8; }
+  .task-item:last-of-type { border-bottom:none; }
+  .task-dot  { width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+  .dot-red   { background:#ef4444; }
+  .dot-orange{ background:#f59e0b; }
+  .task-text { font-size:13px; color:#1f2328; line-height:1.4; }
+  .task-sub  { font-size:11px; color:#57606a; }
+  .alert-box { margin-top:12px; padding:10px 12px; background:#fef2f2; border-radius:8px; border:1px solid #fecaca; font-size:12px; color:#dc2626; }
+
+  .ws-item   { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid #f0f4f8; }
+  .ws-item:last-child { border-bottom:none; padding-bottom:0; }
+  .ws-label  { display:flex; align-items:center; gap:7px; font-size:13px; color:#1f2328; }
+  .ws-status { font-size:11px; font-weight:600; padding:3px 9px; border-radius:99px; }
+  .status-green  { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+  .status-yellow { background:#fffbeb; color:#d97706; border:1px solid #fde68a; }
+  .status-blue   { background:#eff6ff; color:#3b82d4; border:1px solid #bfdbfe; }
+
+  /* ── CHECKLIST ── */
+  .checklist-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:22px; margin-bottom:16px; }
+  .cl-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .cl-title  { display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; color:#1f2328; }
+  .cl-progress-text { font-size:12px; color:#57606a; }
+  .cl-prog-wrap { background:#f0f4f8; border-radius:99px; height:6px; overflow:hidden; margin-bottom:18px; }
+  .cl-prog-bar  { height:100%; border-radius:99px; background:#16a34a; transition:width .35s ease; }
+
+  .cl-item {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px; border-radius:10px;
+    cursor:pointer; border:1px solid transparent;
+    margin-bottom:8px; user-select:none; transition:background .12s;
+  }
+  .cl-item:last-child { margin-bottom:0; }
+  .cl-item:hover { background:#f7f8fa; }
+  .cl-item.done  { background:#f0fdf4; border-color:#bbf7d0; }
+
+  .checkbox {
+    width:20px; height:20px; border-radius:6px;
+    border:2px solid #d1d5db;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition:background .12s, border-color .12s;
+  }
+  .cl-item.done .checkbox { background:#16a34a; border-color:#16a34a; }
+  .checkbox svg { display:none; }
+  .cl-item.done .checkbox svg { display:block; }
+  .cl-text { flex:1; }
+  .cl-text-title { font-size:14px; font-weight:500; color:#1f2328; transition:color .12s; }
+  .cl-item.done .cl-text-title { color:#57606a; text-decoration:line-through; }
+  .cl-text-sub { font-size:11px; color:#57606a; margin-top:2px; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align:center; padding:20px 16px 0;
+    border-top:1px solid #e5e7eb;
+    max-width:980px; margin:24px auto 0;
+    font-size:12px; color:#57606a;
+  }
+
+  /* ════════════════════════════════
+     INFOGRAFIK VIEW
+  ════════════════════════════════ */
+  .infografik-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 28px 18px 0;
+  }
+  .poster {
+    background: #112240;
+    width: 100%; max-width: 720px;
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid #1e3a5f;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #0a1628 0%, #163260 100%);
+    border-bottom: 2px solid #c9a84c;
+    padding: 34px 32px 28px;
+    text-align: center;
+  }
+  .hero-tag {
+    display:inline-block;
+    background:rgba(201,168,76,.15); border:1px solid rgba(201,168,76,.4);
+    border-radius:99px; font-size:10px; font-weight:700;
+    letter-spacing:.1em; text-transform:uppercase;
+    padding:4px 14px; color:#e8c96d; margin-bottom:14px;
+  }
+  .hero-title { font-size:28px; font-weight:800; letter-spacing:-.5px; color:#fff; margin-bottom:4px; }
+  .hero-title span { color:#c9a84c; }
+  .hero-sub   { font-size:13px; color:#8aaccf; margin-bottom:16px; }
+  .hero-sub strong { color:#e8c96d; }
+  .hero-date  {
+    display:inline-flex; align-items:center; gap:7px;
+    background:rgba(201,168,76,.12); border:1px solid rgba(201,168,76,.3);
+    border-radius:8px; padding:7px 16px;
+    font-size:13px; font-weight:500; color:#e8c96d;
+  }
+
+  .poster-body { padding:26px 26px 10px; }
+
+  .i-sec-label {
+    font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.1em; color:#c9a84c; margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .i-sec-label::after { content:''; flex:1; height:1px; background:#1e3a5f; }
+
+  /* Attendance */
+  .attend-row { display:flex; align-items:center; gap:24px; margin-bottom:26px; flex-wrap:wrap; }
+  .donut-wrap { position:relative; width:120px; height:120px; flex-shrink:0; }
+  .donut-wrap svg { width:120px; height:120px; transform:rotate(-90deg); }
+  .donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut-num { font-size:30px; font-weight:800; color:#fff; line-height:1; }
+  .donut-lbl { font-size:10px; color:#8aaccf; margin-top:3px; letter-spacing:.05em; text-transform:uppercase; }
+  .attend-stats { flex:1; min-width:180px; }
+  .a-stat { margin-bottom:12px; }
+  .a-stat-row { display:flex; justify-content:space-between; font-size:13px; color:#8aaccf; margin-bottom:6px; }
+  .a-stat-row strong { color:#fff; }
+  .i-pbar { background:#0d1b2a; border-radius:99px; height:10px; overflow:hidden; border:1px solid #1e3a5f; }
+  .i-pbar-fill { height:100%; border-radius:99px; }
+  .i-fill-gold { background:#c9a84c; }
+  .i-fill-red  { background:#e05c5c; }
+  .attend-rate { margin-top:6px; font-size:12px; color:#8aaccf; background:#0d1b2a; border-radius:8px; padding:9px 12px; border:1px solid #1e3a5f; }
+  .attend-rate strong { color:#c9a84c; font-size:18px; }
+
+  /* Tasks */
+  .i-tasks-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:26px; }
+  @media (max-width:520px) { .i-tasks-grid { grid-template-columns:1fr; } }
+  .i-task-card { border-radius:14px; padding:18px; position:relative; overflow:hidden; }
+  .i-task-card.red    { background:#1e1428; border:1px solid #5c2a2a; }
+  .i-task-card.orange { background:#1c1a0f; border:1px solid #5c4a10; }
+  .i-task-accent { position:absolute; top:0; left:0; width:4px; height:100%; border-radius:14px 0 0 14px; }
+  .i-task-card.red    .i-task-accent { background:#e05c5c; }
+  .i-task-card.orange .i-task-accent { background:#c9a84c; }
+  .i-task-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; padding-left:8px; }
+  .i-task-card.red    .i-task-lbl { color:#e05c5c; }
+  .i-task-card.orange .i-task-lbl { color:#c9a84c; }
+  .i-task-num { font-size:42px; font-weight:800; line-height:1; margin-bottom:4px; padding-left:8px; }
+  .i-task-card.red    .i-task-num { color:#e05c5c; }
+  .i-task-card.orange .i-task-num { color:#c9a84c; }
+  .i-task-desc { font-size:12px; color:#8aaccf; line-height:1.5; padding-left:8px; }
+  .i-urgent { position:absolute; top:12px; right:12px; background:#e05c5c; color:#fff; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:2px 8px; border-radius:99px; }
+
+  /* Workshop */
+  .i-ws-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:26px; }
+  @media (max-width:480px) { .i-ws-grid { grid-template-columns:1fr; } }
+  .i-ws-card { border-radius:12px; padding:16px 12px; text-align:center; background:#0d1b2a; border:1px solid #1e3a5f; }
+  .i-ws-icon { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:20px; background:#112240; border:2px solid; }
+  .i-ws-card.green  .i-ws-icon { border-color:#2a7a4e; }
+  .i-ws-card.yellow .i-ws-icon { border-color:#c9a84c; }
+  .i-ws-card.blue   .i-ws-icon { border-color:#2d6db5; }
+  .i-ws-name { font-size:11px; font-weight:600; color:#cdd9e5; margin-bottom:8px; line-height:1.4; }
+  .i-ws-pill { display:inline-block; font-size:10px; font-weight:700; padding:3px 10px; border-radius:99px; letter-spacing:.04em; }
+  .i-ws-card.green  .i-ws-pill { background:#1a4d35; color:#4ade80; border:1px solid #2a7a4e; }
+  .i-ws-card.yellow .i-ws-pill { background:#3d2f08; color:#fbbf24; border:1px solid #c9a84c; }
+  .i-ws-card.blue   .i-ws-pill { background:#0f2d50; color:#60a5fa; border:1px solid #2d6db5; }
+
+  /* Checklist */
+  .i-cl-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  @media (max-width:480px) { .i-cl-grid { grid-template-columns:1fr; } }
+  .i-cl-item { display:flex; align-items:center; gap:10px; background:#0d1b2a; border:1px solid #1e3a5f; border-radius:10px; padding:12px 14px; }
+  .i-cl-num  { width:26px; height:26px; border-radius:50%; background:rgba(201,168,76,.15); border:1px solid rgba(201,168,76,.35); color:#c9a84c; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .i-cl-text { font-size:12px; color:#cdd9e5; line-height:1.4; }
+  .i-cl-sub  { font-size:10px; color:#57606a; margin-top:2px; }
+
+  .poster-footer { background:#0a1628; border-top:1px solid #1e3a5f; text-align:center; padding:14px; font-size:11px; color:#57606a; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="header-icon">
+      <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">My TVET Class — DKM 20123</div>
+      <div class="header-sub">Papan Pemantauan Harian &middot; Daily Class Monitor</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-date">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <span id="todayDate">—</span>
+    </div>
+    <!-- BUTANG INFOGRAFIK -->
+    <button class="btn-infografik" id="btnToggle" onclick="toggleView()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      <span id="btnLabel">Lihat Infografik</span>
+    </button>
+  </div>
+</header>
+
+<!-- ══ VIEW: DASHBOARD ══ -->
+<div id="view-dashboard">
+<main>
+
+  <div class="section-label">Ringkasan Hari Ini &middot; Today's Overview</div>
+  <div class="cards-grid">
+
+    <!-- Card 1: Students -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon icon-blue">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <span class="card-title">Pelajar &middot; Students</span>
+        </div>
+        <span class="badge badge-blue">Kehadiran</span>
+      </div>
+      <div class="stat-big">25</div>
+      <div class="stat-lbl">Jumlah Pelajar &middot; Total Students</div>
+      <div class="stat-row"><span>&#10003; Hadir &middot; Present</span><span style="color:#16a34a">18</span></div>
+      <div class="prog-wrap"><div class="prog-bar bar-blue" style="width:72%"></div></div>
+      <div class="stat-row"><span>&#10007; Tidak Hadir &middot; Absent</span><span style="color:#ef4444">7</span></div>
+      <div class="prog-wrap"><div class="prog-bar bar-red" style="width:28%"></div></div>
+    </div>
+
+    <!-- Card 2: Tasks -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon icon-purple">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <polyline points="9 11 12 14 22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+          </div>
+          <span class="card-title">Tugasan &middot; Tasks</span>
+        </div>
+        <span class="badge badge-red">Urgent</span>
+      </div>
+      <div class="task-item">
+        <div class="task-dot dot-red"></div>
+        <div>
+          <div class="task-text">Penandaan &middot; Marking</div>
+          <div class="task-sub">3 kursus belum ditanda &middot; 3 courses pending</div>
+        </div>
+      </div>
+      <div class="task-item">
+        <div class="task-dot dot-orange"></div>
+        <div>
+          <div class="task-text">Assessment 3</div>
+          <div class="task-sub">12 skrip belum diperiksa &middot; 12 scripts left</div>
+        </div>
+      </div>
+      <div class="alert-box">&#9888; Sila selesaikan sebelum akhir minggu &middot; Please complete by end of week</div>
+    </div>
+
+    <!-- Card 3: Workshop Status -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon icon-green">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+          </div>
+          <span class="card-title">Status Bengkel &middot; Workshop</span>
+        </div>
+      </div>
+      <div class="ws-item">
+        <div class="ws-label">
+          <svg width="13" height="13" fill="none" stroke="#57606a" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          Mesin 1 &middot; Machine 1
+        </div>
+        <span class="ws-status status-green">&#10003; OK</span>
+      </div>
+      <div class="ws-item">
+        <div class="ws-label">
+          <svg width="13" height="13" fill="none" stroke="#57606a" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          Mesin 2 &middot; Machine 2
+        </div>
+        <span class="ws-status status-yellow">&#9881; Under Maintenance</span>
+      </div>
+      <div class="ws-item">
+        <div class="ws-label">
+          <svg width="13" height="13" fill="none" stroke="#57606a" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Safety Checklist
+        </div>
+        <span class="ws-status status-blue">&#10003; Selesai &middot; Done</span>
+      </div>
+    </div>
+
+  </div><!-- /cards-grid -->
+
+  <!-- CHECKLIST -->
+  <div class="section-label">Senarai Semak &middot; Pre-Class Checklist</div>
+  <div class="checklist-card">
+    <div class="cl-header">
+      <div class="cl-title">
+        <svg width="18" height="18" fill="none" stroke="#3b82d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+        Sebelum Kelas Bermula &middot; Before Class Starts
+      </div>
+      <span class="cl-progress-text" id="checkCount">0 / 4 selesai &middot; done</span>
+    </div>
+    <div class="cl-prog-wrap">
+      <div class="cl-prog-bar" id="checkBar" style="width:0%"></div>
+    </div>
+    <div class="cl-item" onclick="toggleCheck(this)">
+      <div class="checkbox"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="cl-text">
+        <div class="cl-text-title">&#128203; Borang Kehadiran &middot; Attendance Sheet</div>
+        <div class="cl-text-sub">Ambil &amp; edar borang kehadiran kepada pelajar</div>
+      </div>
+    </div>
+    <div class="cl-item" onclick="toggleCheck(this)">
+      <div class="checkbox"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="cl-text">
+        <div class="cl-text-title">&#128218; Buka Log Makmal &middot; Open Lab Logbook</div>
+        <div class="cl-text-sub">Rekod masuk &amp; keluar peralatan makmal</div>
+      </div>
+    </div>
+    <div class="cl-item" onclick="toggleCheck(this)">
+      <div class="checkbox"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="cl-text">
+        <div class="cl-text-title">&#128250; Semak Projektor &middot; Check Projector</div>
+        <div class="cl-text-sub">Pastikan projektor berfungsi &amp; slaid dimuat naik</div>
+      </div>
+    </div>
+    <div class="cl-item" onclick="toggleCheck(this)">
+      <div class="checkbox"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="cl-text">
+        <div class="cl-text-title">&#128737; Taklimat Keselamatan &middot; Safety Briefing</div>
+        <div class="cl-text-sub">Beri arahan keselamatan sebelum aktiviti amali</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+<footer>Made with IBM Bob</footer>
+</div><!-- /view-dashboard -->
+
+<!-- ══ VIEW: INFOGRAFIK ══ -->
+<div id="view-infografik">
+  <div class="infografik-wrap">
+    <div class="poster">
+
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-tag">Papan Pemantauan Harian &middot; Daily Class Monitor</div>
+        <div class="hero-title">My <span>TVET</span> Class</div>
+        <div class="hero-sub">Kod Kursus &middot; Course Code: <strong>DKM 20123</strong></div>
+        <div class="hero-date">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span id="infDate">—</span>
+        </div>
+      </div>
+
+      <div class="poster-body">
+
+        <!-- ATTENDANCE -->
+        <div class="i-sec-label">&#128101; Kehadiran Pelajar &middot; Student Attendance</div>
+        <div class="attend-row">
+          <div class="donut-wrap">
+            <svg viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e3a5f" stroke-width="3.8"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#c9a84c" stroke-width="3.8" stroke-dasharray="72 28" stroke-linecap="round"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e05c5c" stroke-width="3.8" stroke-dasharray="28 72" stroke-dashoffset="-72" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-center">
+              <div class="donut-num">25</div>
+              <div class="donut-lbl">Pelajar</div>
+            </div>
+          </div>
+          <div class="attend-stats">
+            <div class="a-stat">
+              <div class="a-stat-row"><span>&#10003; Hadir &middot; Present</span><strong style="color:#c9a84c">18 &nbsp;(72%)</strong></div>
+              <div class="i-pbar"><div class="i-pbar-fill i-fill-gold" style="width:72%"></div></div>
+            </div>
+            <div class="a-stat">
+              <div class="a-stat-row"><span>&#10007; Tidak Hadir &middot; Absent</span><strong style="color:#e05c5c">7 &nbsp;(28%)</strong></div>
+              <div class="i-pbar"><div class="i-pbar-fill i-fill-red" style="width:28%"></div></div>
+            </div>
+            <div class="attend-rate">Kadar Kehadiran &middot; Attendance Rate: <strong>72%</strong></div>
+          </div>
+        </div>
+
+        <!-- TASKS -->
+        <div class="i-sec-label">&#128203; Tugasan Tertangguh &middot; Pending Tasks</div>
+        <div class="i-tasks-grid">
+          <div class="i-task-card red">
+            <div class="i-task-accent"></div>
+            <div class="i-urgent">URGENT</div>
+            <div class="i-task-lbl">Penandaan &middot; Marking</div>
+            <div class="i-task-num">3</div>
+            <div class="i-task-desc">Kursus belum ditanda<br/>Courses pending marking</div>
+          </div>
+          <div class="i-task-card orange">
+            <div class="i-task-accent"></div>
+            <div class="i-task-lbl">Assessment 3</div>
+            <div class="i-task-num">12</div>
+            <div class="i-task-desc">Skrip belum diperiksa<br/>Scripts left to mark</div>
+          </div>
+        </div>
+
+        <!-- WORKSHOP -->
+        <div class="i-sec-label">&#128295; Status Bengkel &middot; Workshop Status</div>
+        <div class="i-ws-grid">
+          <div class="i-ws-card green">
+            <div class="i-ws-icon">&#9881;</div>
+            <div class="i-ws-name">Mesin 1<br/>Machine 1</div>
+            <div class="i-ws-pill">&#10003; OK</div>
+          </div>
+          <div class="i-ws-card yellow">
+            <div class="i-ws-icon">&#128295;</div>
+            <div class="i-ws-name">Mesin 2<br/>Machine 2</div>
+            <div class="i-ws-pill">Maintenance</div>
+          </div>
+          <div class="i-ws-card blue">
+            <div class="i-ws-icon">&#128737;</div>
+            <div class="i-ws-name">Safety Checklist</div>
+            <div class="i-ws-pill">&#10003; Selesai</div>
+          </div>
+        </div>
+
+        <!-- CHECKLIST -->
+        <div class="i-sec-label">&#9989; Sebelum Kelas Bermula &middot; Before Class Starts</div>
+        <div class="i-cl-grid">
+          <div class="i-cl-item">
+            <div class="i-cl-num">1</div>
+            <div><div class="i-cl-text">&#128203; Borang Kehadiran</div><div class="i-cl-sub">Attendance Sheet</div></div>
+          </div>
+          <div class="i-cl-item">
+            <div class="i-cl-num">2</div>
+            <div><div class="i-cl-text">&#128218; Buka Log Makmal</div><div class="i-cl-sub">Open Lab Logbook</div></div>
+          </div>
+          <div class="i-cl-item">
+            <div class="i-cl-num">3</div>
+            <div><div class="i-cl-text">&#128250; Semak Projektor</div><div class="i-cl-sub">Check Projector</div></div>
+          </div>
+          <div class="i-cl-item">
+            <div class="i-cl-num">4</div>
+            <div><div class="i-cl-text">&#128737; Taklimat Keselamatan</div><div class="i-cl-sub">Safety Briefing</div></div>
+          </div>
+        </div>
+
+      </div><!-- /poster-body -->
+      <div class="poster-footer">Made with IBM Bob</div>
+    </div><!-- /poster -->
+  </div><!-- /infografik-wrap -->
+</div><!-- /view-infografik -->
+
+<script>
+  // Live date
+  const DAYS   = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+  const MONTHS = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogos','Sep','Okt','Nov','Dis'];
+  const now = new Date();
+  const dateStr = DAYS[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('todayDate').textContent = dateStr;
+  document.getElementById('infDate').textContent   = dateStr;
+
+  // Toggle view
+  let isInfografik = false;
+  function toggleView() {
+    isInfografik = !isInfografik;
+    document.getElementById('view-dashboard').style.display  = isInfografik ? 'none'  : 'block';
+    document.getElementById('view-infografik').style.display = isInfografik ? 'block' : 'none';
+    document.getElementById('btnLabel').textContent = isInfografik ? 'Lihat Dashboard' : 'Lihat Infografik';
+  }
+
+  // Checklist toggle
+  function toggleCheck(item) {
+    item.classList.toggle('done');
+    const items = document.querySelectorAll('.cl-item');
+    const done  = document.querySelectorAll('.cl-item.done').length;
+    const pct   = Math.round((done / items.length) * 100);
+    document.getElementById('checkBar').style.width = pct + '%';
+    document.getElementById('checkCount').textContent = done + ' / ' + items.length + ' selesai \u00b7 done';
+  }
+</script>
+</body>
+</html>
