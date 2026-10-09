@@ -67,8 +67,8 @@
   .btn-infografik svg    { flex-shrink: 0; }
 
   /* ── VIEWS ── */
-  #view-dashboard  { display: block; }
-  #view-infografik { display: none;  }
+  #view-dashboard  { display: none;  }
+  #view-infografik { display: block; }
 
   /* ── MAIN ── */
   main {
@@ -308,7 +308,7 @@
         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
         <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
       </svg>
-      <span id="btnLabel">Lihat Infografik</span>
+      <span id="btnLabel">Lihat Dashboard</span>
     </button>
   </div>
 </header>
@@ -588,7 +588,7 @@
   document.getElementById('infDate').textContent   = dateStr;
 
   // Toggle view
-  let isInfografik = false;
+  let isInfografik = true;
   function toggleView() {
     isInfografik = !isInfografik;
     document.getElementById('view-dashboard').style.display  = isInfografik ? 'none'  : 'block';
